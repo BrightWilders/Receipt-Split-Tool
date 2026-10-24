@@ -72,15 +72,16 @@
     <div class="modal-body">
       <div class="manager-top">
         <div><label><strong>Purchasing Bucket</strong></label><select id="managerProfile"></select></div>
-        <div><strong>How it works</strong><div class="sub">Auto Choose and Mixed use these keywords to select a bucket and coding option. Changes are saved in this browser.</div></div>
+        <div><strong>How it works</strong><div class="sub">Auto Choose and Mixed use these keywords to select a bucket and coding option. Edit keywords here, then download keywords.json and upload it to GitHub. Changes are shared after GitHub Pages publishes.</div></div>
       </div>
       <div class="manager-top"><div class="manager-list" id="managerCategoryList"></div><div class="rule-card" id="managerEditor"></div></div>
-      <div class="manager-actions"><button class="secondary" id="resetKeywords">Restore Default Keywords</button><button id="doneManager">Done</button></div>
+      <div class="sub" id="keywordStatus">Loading shared keywords…</div><div class="manager-actions"><button class="secondary" id="resetKeywords">Restore Default Keywords</button><button class="secondary" id="downloadKeywords">Download Keywords JSON</button><button id="doneManager">Done</button></div>
     </div>
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js">loadSharedRules();
+</script>
 <script type="module">
 import * as pdfjsLib from 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs';
 pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.mjs';
@@ -165,10 +166,35 @@ const PROFILE_OPTIONS={
 
 const DEFAULT_RULES=JSON.parse(JSON.stringify(PROFILE_OPTIONS));
 const STORAGE_KEY='receiptSplitterKeywordRulesV4';
-let mode='auto', singleProfile='gsc', allLines=[], purchaseLines=[], parsedReceipt=null, currentFile=null, rules=loadRules(), managerSelectedCode='';
+let mode='auto', singleProfile='gsc', allLines=[], purchaseLines=[], parsedReceipt=null, currentFile=null, rules=JSON.parse(JSON.stringify(PROFILE_OPTIONS)), managerSelectedCode='', keywordDirty=false;
 
-function loadRules(){try{const saved=JSON.parse(localStorage.getItem(STORAGE_KEY));if(saved&&typeof saved==='object'){const merged=JSON.parse(JSON.stringify(PROFILE_OPTIONS));for(const p of Object.keys(merged)){if(Array.isArray(saved[p]))for(const opt of merged[p]){const prior=saved[p].find(x=>x.code===opt.code);if(prior&&Array.isArray(prior.keywords))opt.keywords=prior.keywords}}return merged}}catch{}return JSON.parse(JSON.stringify(PROFILE_OPTIONS))}
-function saveRules(){localStorage.setItem(STORAGE_KEY,JSON.stringify(rules))}
+// Shared rules are read from GitHub Pages; local edits are exported, never silently published.
+async function loadSharedRules(){
+ try{
+  const response=await fetch('./data/keywords.json?ts='+Date.now(),{cache:'no-store'});
+  if(!response.ok)throw new Error('HTTP '+response.status);
+  const data=await response.json();
+  if(!data||!data.profiles||typeof data.profiles!=='object')throw new Error('Invalid keyword file');
+  const merged=JSON.parse(JSON.stringify(PROFILE_OPTIONS));
+  for(const p of Object.keys(merged)){
+   if(!Array.isArray(data.profiles[p]))continue;
+   for(const opt of merged[p]){
+    const saved=data.profiles[p].find(x=>x.code===opt.code);
+    if(saved&&Array.isArray(saved.keywords))opt.keywords=saved.keywords.filter(x=>typeof x==='string');
+   }
+  }
+  rules=merged;keywordDirty=false;
+  const status=$('keywordStatus');if(status)status.textContent='Shared GitHub keywords loaded. Changes must be downloaded and committed to publish.';
+  if(allLines.length)applyRouting();
+ }catch(e){const status=$('keywordStatus');if(status)status.textContent='Shared file unavailable. Using built-in default keywords; check data/keywords.json on GitHub Pages.';}
+}
+function saveRules(){keywordDirty=true;const status=$('keywordStatus');if(status)status.textContent='Unpublished edits — download JSON and upload to GitHub to share.';}
+function downloadKeywordFile(){
+ const payload={version:1,profiles:rules};
+ const blob=new Blob([JSON.stringify(payload,null,2)+'\n'],{type:'application/json'});
+ const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='keywords.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+ const status=$('keywordStatus');if(status)status.textContent='Downloaded keywords.json. Replace data/keywords.json in GitHub and commit to publish.';
+}
 function profileOptions(p){return PROFILE_OPTIONS[p]||[]}
 function profileRules(p){return rules[p]||[]}
 function optionByCode(code,p){return profileOptions(p).find(x=>x.code===code)}
@@ -210,7 +236,7 @@ function suggestMemo(description,p,code,defaultMemo='',matchedKeyword=''){
 }
 function classifyInProfile(description,p){const text=normalize(description),candidates=[];for(const rule of profileRules(p)){for(const keyword of rule.keywords||[]){const k=normalize(keyword);if(k&&text.includes(k))candidates.push({rule,keyword,score:k.length})}}if(!candidates.length)return{profile:p,coding:'',memo:''};candidates.sort((a,b)=>b.score-a.score);const best=candidates[0],rule=best.rule;return{profile:p,coding:rule.code,memo:suggestMemo(description,p,rule.code,rule.memo,best.keyword),score:best.score}}
 function classifyAny(description){const matches=[];for(const p of Object.keys(PROFILE_META)){const c=classifyInProfile(description,p);if(c.coding)matches.push(c)}if(!matches.length)return{profile:'',coding:'',memo:''};matches.sort((a,b)=>(b.score||0)-(a.score||0));return matches[0]}
-function applyRouting(){for(const line of allLines){let c;if(mode==='single')c=classifyForChosenProfile(line.description,singleProfile);else c=classifyAny(line.description);line.profile=c.profile|| (mode==='single'?singleProfile:'');line.coding=c.coding;line.memo=c.memo}renderLines();renderSummary();updateStatusAfterRouting()}
+function applyRouting(){for(const line of allLines){let c;if(mode==='single')c=classifyForChosenProfile(line.description,singleProfile);else c=classifyAny(line.description);line.profile=c.profile|| (mode==='single'?singleProfile:'');line.coding=c.coding;line.memo=actualItemMemo(line.description)}renderLines();renderSummary();updateStatusAfterRouting()}
 
 function bucketOptions(selected='',disabled=false){const review=`<option value="" ${!selected?'selected':''}>Review Required</option>`;return review+Object.entries(PROFILE_META).map(([k,v])=>`<option value="${k}" ${selected===k?'selected':''}>${esc(v.short)}</option>`).join('')}
 function codingOptions(p,selected=''){let html='<option value="">Review Required</option>';for(const opt of profileOptions(p))html+=`<option value="${esc(opt.code)}" ${selected===opt.code?'selected':''}>${esc(opt.code)}</option>`;return html}
@@ -616,6 +642,30 @@ function cleanReviewDescription(description){
  return text||String(description||'').trim();
 }
 
+function shortItemName(description){
+ const original=cleanReviewDescription(description);
+ let text=original.replace(/^FF&E\s*\([^)]*\)\s*/i,'').replace(/^[A-Z0-9-]{4,}\s*\d+\s*\|?\s*/i,'');
+ const norm=normalize(text);
+ const names=[
+  [/hair\s*dryer.*bag|hairdryer.*bag/i,'Hair Dryer Storage Bags'],
+  [/storage\s*bag.*(?:blanket|comforter)|(?:blanket|comforter).*storage\s*bag/i,'Blanket & Comforter Storage Bags'],
+  [/\bhangers?\b/i,'Hangers'],[/\bpaper towels?\b/i,'Paper Towels'],
+  [/\bcutting boards?\b/i,'Cutting Boards'],[/\bdish towels?\b/i,'Dish Towels'],
+  [/\btrash bags?\b/i,'Trash Bags'],[/\bshower curtains?\b/i,'Shower Curtains']
+ ];
+ let label='';for(const [pattern,value] of names){if(pattern.test(text)){label=value;break}}
+ if(!label){
+  // Use the matched item keyword as a fallback, rather than the accounting category.
+  const hits=[];for(const p of Object.keys(rules))for(const rule of rules[p])for(const k of rule.keywords||[])if(normalize(k).length>=4&&norm.includes(normalize(k)))hits.push(k);
+  hits.sort((a,b)=>b.length-a.length);label=hits.length?prettyKeyword(hits[0]):text.split(/[,|]/)[0].trim().slice(0,75);
+ }
+ const pack=text.match(/\b(\d+)\s*(?:pcs|pieces|pack|pk)\b|\b(\d+)\s*[- ]?pack\b/i);
+ const size=text.match(/\b(\d{2,3})\s*L\b/i);
+ if(size)label+=` (${size[1]}L)`;
+ if(pack)label+=` (${pack[1]||pack[2]}-Pack)`;
+ return label||original.slice(0,75);
+}
+function actualItemMemo(description){return shortItemName(description).replace(/\s*\([^)]*(?:pack|pcs|pieces|\d+L)[^)]*\)/gi,'').trim()}
 function reviewItemDetail(line){
  const parts=[`Item ${money(line.amount)}`];
  if(Number(line.tax||0))parts.push(`Tax ${money(line.tax)}`);
@@ -632,7 +682,7 @@ function renderLines(){
   const cleanDescription=cleanReviewDescription(line.description);
   const description=line.manual
    ? `<input type="text" data-i="${i}" data-field="description" value="${esc(line.description)}"><div class="sub">Manually added receipt item</div>${line.coding?'':'<div class="review-note">Review Required</div>'}`
-   : `${esc(cleanDescription)}<div class="sub">${line.shipmentDateText?`Shipped ${esc(line.shipmentDateText)} • `:''}${reviewItemDetail(line)}</div>${line.coding?'':'<div class="review-note">Review Required</div>'}`;
+   : `${esc(shortItemName(cleanDescription))}<div class="sub" title="${esc(cleanDescription)}">${line.shipmentDateText?`Shipped ${esc(line.shipmentDateText)} • `:''}${reviewItemDetail(line)}</div>${line.coding?'':'<div class="review-note">Review Required</div>'}`;
 
   if(line.reviewAmount==null){
    line.reviewAmount=Number(line.manual ? (line.manualAmount||0) : (line.receiptAmount ?? line.amount ?? 0));
@@ -656,17 +706,17 @@ function renderLines(){
     line.profile=e.target.value;
     if(!line.profile){line.coding='';line.memo='';renderLines();renderSummary();return}
     const c=classifyForChosenProfile(line.description,line.profile);
-    line.coding=c.coding;line.memo=c.memo;
+    line.coding=c.coding;line.memo=actualItemMemo(line.description);
     renderLines();
    }else if(field==='coding'){
     line.coding=e.target.value;
     const opt=optionByCode(line.coding,line.profile);
-    line.memo=opt?suggestMemo(line.description,line.profile,opt.code,opt.memo,(opt.keywords||[]).find(k=>normalize(line.description).includes(normalize(k)))||''):'';
+    line.memo=opt?actualItemMemo(line.description):'';
     renderLines();
    }else if(field==='description'){
     line.description=e.target.value;
     const c=mode==='single'?classifyForChosenProfile(line.description,singleProfile):classifyAny(line.description);
-    if(c.coding){line.profile=c.profile;line.coding=c.coding;line.memo=c.memo}
+    if(c.coding){line.profile=c.profile;line.coding=c.coding;line.memo=actualItemMemo(line.description)}
     renderSummary();
    }else if(field==='reviewAmount'){
     line.reviewAmount=Math.max(0,Number(e.target.value||0));
@@ -732,7 +782,8 @@ $('manualTax').addEventListener('change',applyManualReceiptTotals);
 $('manualDiscount').addEventListener('change',applyManualReceiptTotals);
 $('newBtn').onclick=reset;$('changeBtn').onclick=()=>{reset();setTimeout(()=>$('pdfInput').click(),100)};$('printBtn').onclick=printRampSplit;
 $('copyBtn').onclick=async()=>{const groups=grouped(),rows=['Bucket\tGL / Ramp Item\tDept\tMemo\tAmount'];for(const g of groups){const d=codingDisplay(g);rows.push(`${g.profile?PROFILE_META[g.profile].short:'Review'}\t${d.coding}\t${d.dept}\t${joinMemos(g.memos)}\t${money(g.total)}`)}rows.push(`\t\t\tTransaction Total\t${money(groups.reduce((s,g)=>s+g.total,0))}`);const text=rows.join('\n');try{await navigator.clipboard.writeText(text);$('copyBtn').textContent='Copied';setTimeout(()=>$('copyBtn').textContent='Copy Ramp Split',1200)}catch{prompt('Copy Ramp Split:',text)}};
-$('managerBtn').onclick=openManager;$('closeManager').onclick=closeManager;$('doneManager').onclick=closeManager;$('managerModal').addEventListener('click',e=>{if(e.target===$('managerModal'))closeManager()});$('managerProfile').onchange=()=>{managerSelectedCode=profileOptions($('managerProfile').value)[0].code;renderManager()};$('resetKeywords').onclick=()=>{const p=$('managerProfile').value;rules[p]=JSON.parse(JSON.stringify(DEFAULT_RULES[p]));saveRules();renderManager()};
+$('downloadKeywords').onclick=downloadKeywordFile;$('managerBtn').onclick=openManager;$('closeManager').onclick=closeManager;$('doneManager').onclick=closeManager;$('managerModal').addEventListener('click',e=>{if(e.target===$('managerModal'))closeManager()});$('managerProfile').onchange=()=>{managerSelectedCode=profileOptions($('managerProfile').value)[0].code;renderManager()};$('resetKeywords').onclick=()=>{const p=$('managerProfile').value;rules[p]=JSON.parse(JSON.stringify(DEFAULT_RULES[p]));saveRules();renderManager()};
+loadSharedRules();
 </script>
 </body>
 </html>
