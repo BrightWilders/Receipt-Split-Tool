@@ -73,14 +73,6 @@ keywords
 0	"bottled water"
 1	"water bottles"
 9	
-code	"GS-Owner stay Fee"
-memo	"Owner Stay Fee"
-keywords	[]
-10	
-code	"GS-Comp stays"
-memo	"Comp Stays"
-keywords	[]
-11	
 code	"GS-Spices"
 memo	"Spices"
 keywords	
@@ -119,22 +111,18 @@ keywords
 6	"flatware"
 7	"Champagne Glasses"
 3	
-code	"US-Unit Miscellaneous Supplies"
-memo	"Miscellaneous Unit Supplies"
-keywords	[]
-4	
 code	"US-Unit OnBoarding Supplies"
 memo	"Onboarding Supplies"
 keywords	
 0	"onboarding supplies"
 1	"unit onboarding"
-5	
+4	
 code	"US-Keurig"
 memo	"Keurig"
 keywords	
 0	"keurig coffee maker"
 1	"keurig machine"
-6	
+5	
 code	"US-Point Central Locks/Thermostats"
 memo	"PointCentral Equipment"
 keywords	
@@ -142,7 +130,7 @@ keywords
 1	"smart lock"
 2	"door lock"
 3	"thermostat"
-7	
+6	
 code	"US-Exterior/Common Area"
 memo	"Exterior/Common Area"
 keywords	
@@ -150,7 +138,7 @@ keywords
 1	"patio"
 2	"pool furniture"
 3	"common area"
-8	
+7	
 code	"US-Furniture"
 memo	"Furniture"
 keywords	
@@ -173,10 +161,6 @@ keywords
 3	"club soda"
 4	"grenadine"
 1	
-code	"F&B-Miscellaneous Purchases"
-memo	"F&B Miscellaneous"
-keywords	[]
-2	
 code	"F&B-Paper, Plastic & Disposables"
 memo	"Paper, Plastic & Disposables"
 keywords	
@@ -186,7 +170,7 @@ keywords
 3	"plastic cup"
 4	"to go container"
 5	"disposable"
-3	
+2	
 code	"F&B-Glassware & Utensils"
 memo	"Glassware & Utensils"
 keywords	
@@ -258,20 +242,12 @@ keywords
 0	"bed pillow"
 1	"sleeping pillow"
 9	
-code	"Linen - 3rd Party Purchased"
-memo	"3rd Party Purchased Linen"
-keywords	[]
-10	
 code	"Linen - Bedskirts"
 memo	"Bedskirts"
 keywords	
 0	"bed skirt"
 1	"bedskirt"
-11	
-code	"Linen - Other"
-memo	"Other Linen"
-keywords	[]
-12	
+10	
 code	"Linen - Kitchen Towels"
 memo	"Kitchen Towels"
 keywords	
@@ -365,10 +341,6 @@ memo	"Resale"
 keywords	
 0	"resale"
 1	"for resale"
-1	
-code	"7880 - Boatyard Supplies"
-memo	"Boatyard Supplies"
-keywords	[]
 hsk	
 0	
 code	"7700 - 310 - Housekeeping Operations"
