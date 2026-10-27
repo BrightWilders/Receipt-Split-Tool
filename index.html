@@ -214,22 +214,29 @@ async function loadSharedKeywords(){
   const data=await response.json();
   if(!data||typeof data!=='object'||!data.profiles||!Object.keys(PROFILE_META).some(p=>Array.isArray(data.profiles[p])))throw new Error('Unexpected JSON format');
   publishedRules=mergeKeywordRules(PROFILE_OPTIONS,data);
-  let draft=null;
-  try{draft=JSON.parse(localStorage.getItem(STORAGE_KEY))}catch{}
-  rules=draft&&draft.profiles?mergeKeywordRules(publishedRules,draft):JSON.parse(JSON.stringify(publishedRules));
-  keywordDraftDirty=!!(draft&&draft.profiles);
-  keywordLoadMessage='Shared keywords loaded from data/keywords.json.';
+  // Google Sheets -> published JSON is the source of truth. Old browser drafts
+  // used to replace entire published categories, hiding newly added keywords.
+  // Preserve a backup rather than silently discarding any local work.
+  const oldDraft=localStorage.getItem(STORAGE_KEY);
+  if(oldDraft){
+   localStorage.setItem(STORAGE_KEY+'_backup_'+Date.now(),oldDraft);
+   localStorage.removeItem(STORAGE_KEY);
+  }
+  rules=JSON.parse(JSON.stringify(publishedRules));
+  keywordDraftDirty=false;
+  keywordLoadMessage='Shared keywords loaded from data/keywords.json.'+(oldDraft?' Previous browser draft archived so published changes take priority.':'');
  }catch(error){
   publishedRules=JSON.parse(JSON.stringify(PROFILE_OPTIONS));
   let draft=null;try{draft=JSON.parse(localStorage.getItem(STORAGE_KEY))}catch{}
   rules=draft&&draft.profiles?mergeKeywordRules(publishedRules,draft):JSON.parse(JSON.stringify(publishedRules));
   keywordDraftDirty=!!(draft&&draft.profiles);
-  keywordLoadMessage='Could not load data/keywords.json ('+error.message+'). Using built-in keywords. Publish both files to GitHub Pages.';
+  keywordLoadMessage='Could not load data/keywords.json ('+error.message+'). Using built-in keywords.';
  }
  updateKeywordSourceStatus();
  if(allLines.length)applyRouting();
  if($('managerModal').classList.contains('show'))renderManager();
 }
+
 function downloadKeywordJSON(){
  const payload={version:1,profiles:{}};
  for(const [p,options] of Object.entries(PROFILE_OPTIONS)){
@@ -846,7 +853,7 @@ $('newBtn').onclick=reset;$('changeBtn').onclick=()=>{reset();setTimeout(()=>$('
 $('copyBtn').onclick=async()=>{const groups=grouped(),rows=['Bucket\tGL / Ramp Item\tDept\tMemo\tAmount'];for(const g of groups){const d=codingDisplay(g);rows.push(`${g.profile?PROFILE_META[g.profile].short:'Review'}\t${d.coding}\t${d.dept}\t${joinMemos(g.memos,g)}\t${money(g.total)}`)}rows.push(`\t\t\tTransaction Total\t${money(groups.reduce((s,g)=>s+g.total,0))}`);const text=rows.join('\n');try{await navigator.clipboard.writeText(text);$('copyBtn').textContent='Copied';setTimeout(()=>$('copyBtn').textContent='Copy Ramp Split',1200)}catch{prompt('Copy Ramp Split:',text)}};
 loadSharedKeywords();
 $('downloadKeywords').onclick=downloadKeywordJSON;
-$('managerBtn').onclick=openManager;$('closeManager').onclick=closeManager;$('doneManager').onclick=closeManager;$('managerModal').addEventListener('click',e=>{if(e.target===$('managerModal'))closeManager()});$('managerProfile').onchange=()=>{managerSelectedCode=profileOptions($('managerProfile').value)[0].code;renderManager()};$('resetKeywords').onclick=()=>{const p=$('managerProfile').value;rules[p]=JSON.parse(JSON.stringify(publishedRules[p]));saveRules();renderManager()};
+$('managerBtn').onclick=openManager;$('closeManager').onclick=closeManager;$('doneManager').onclick=closeManager;$('managerModal').addEventListener('click',e=>{if(e.target===$('managerModal'))closeManager()});$('managerProfile').onchange=()=>{managerSelectedCode=profileOptions($('managerProfile').value)[0].code;renderManager()};$('resetKeywords').onclick=()=>{rules=JSON.parse(JSON.stringify(publishedRules));localStorage.removeItem(STORAGE_KEY);keywordDraftDirty=false;updateKeywordSourceStatus();if(allLines.length)applyRouting();renderManager()};
 </script>
 </body>
 </html>
