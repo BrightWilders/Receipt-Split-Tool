@@ -98,6 +98,7 @@ keywords
 1	"toilet brush"
 2	"shower caddy"
 3	"bath mat"
+4	"Hair Dryer Bags"
 2	
 code	"US-Unit Kitchen Supplies"
 memo	"Kitchen Supplies"
@@ -110,6 +111,7 @@ keywords
 5	"silverware"
 6	"flatware"
 7	"Champagne Glasses"
+8	"Brita"
 3	
 code	"US-Unit OnBoarding Supplies"
 memo	"Onboarding Supplies"
@@ -150,6 +152,13 @@ keywords
 5	"nightstand"
 6	"bed frame"
 7	"headboard"
+8	
+code	"US-Unit Miscellaneous Supplies"
+memo	"Miscellaneous Unit Supplies"
+keywords	
+0	"Ioning Board"
+1	"Storage Organizer"
+2	"Picture Frame"
 fb	
 0	
 code	"F&B-Mixers Purchases"
