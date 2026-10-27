@@ -1,515 +1,423 @@
-{
-  "version": 1,
-  "profiles": {
-    "gsc": [
-      {
-        "code": "GS-Coffee/Coffee Supplies",
-        "memo": "Coffee Supplies",
-        "keywords": [
-          "coffee",
-          "keurig pod",
-          "k cup",
-          "creamer",
-          "sweetener"
-        ]
-      },
-      {
-        "code": "GS-Paper Towels",
-        "memo": "Paper Towels",
-        "keywords": [
-          "paper towel",
-          "bounty quick size",
-          "bounty paper towels"
-        ]
-      },
-      {
-        "code": "GS-Toiletries-Soap/Shampoo/Lotion",
-        "memo": "Toiletries",
-        "keywords": [
-          "shampoo",
-          "conditioner",
-          "body wash",
-          "body lotion",
-          "hand soap",
-          "bar soap",
-          "toiletries"
-        ]
-      },
-      {
-        "code": "GS-Laundry Supplies - Guest Use",
-        "memo": "Laundry Supplies",
-        "keywords": [
-          "guest laundry",
-          "laundry detergent pacs",
-          "laundry pods",
-          "dryer sheets"
-        ]
-      },
-      {
-        "code": "GS-Trash Can Liners",
-        "memo": "Trash Bags",
-        "keywords": [
-          "trash bag",
-          "trash can liner",
-          "garbage bag"
-        ]
-      },
-      {
-        "code": "GS-Tissues",
-        "memo": "Tissues",
-        "keywords": [
-          "facial tissue",
-          "kleenex",
-          "tissues"
-        ]
-      },
-      {
-        "code": "GS-Kitchen Supplies (dish soap/detergent, sponges)",
-        "memo": "Kitchen Supplies",
-        "keywords": [
-          "dish soap",
-          "dishwasher detergent",
-          "dishwasher pod",
-          "sponge",
-          "scrub sponge"
-        ]
-      },
-      {
-        "code": "GS-Toilet Paper",
-        "memo": "Toilet Paper",
-        "keywords": [
-          "toilet paper",
-          "charmin"
-        ]
-      },
-      {
-        "code": "GS-Water bottles",
-        "memo": "Water Bottles",
-        "keywords": [
-          "bottled water",
-          "water bottles"
-        ]
-      },
-      {
-        "code": "GS-Owner stay Fee",
-        "memo": "Owner Stay Fee",
-        "keywords": []
-      },
-      {
-        "code": "GS-Comp stays",
-        "memo": "Comp Stays",
-        "keywords": []
-      },
-      {
-        "code": "GS-Spices",
-        "memo": "Spices",
-        "keywords": [
-          "spice",
-          "seasoning",
-          "salt packets",
-          "pepper packets"
-        ]
-      }
-    ],
-    "unit": [
-      {
-        "code": "US-Unit Bedroom Supplies",
-        "memo": "Bedroom Supplies",
-        "keywords": [
-          "nightstand",
-          "bedroom lamp",
-          "alarm clock",
-          "hanger",
-          "luggage rack"
-        ]
-      },
-      {
-        "code": "US-Unit Bathroom Supplies",
-        "memo": "Bathroom Supplies",
-        "keywords": [
-          "bathroom organizer",
-          "toilet brush",
-          "shower caddy",
-          "bath mat"
-        ]
-      },
-      {
-        "code": "US-Unit Kitchen Supplies",
-        "memo": "Kitchen Supplies",
-        "keywords": [
-          "cookware",
-          "frying pan",
-          "pot set",
-          "cutting board",
-          "kitchen utensil",
-          "silverware",
-          "flatware"
-        ]
-      },
-      {
-        "code": "US-Unit Miscellaneous Supplies",
-        "memo": "Miscellaneous Unit Supplies",
-        "keywords": []
-      },
-      {
-        "code": "US-Unit OnBoarding Supplies",
-        "memo": "Onboarding Supplies",
-        "keywords": [
-          "onboarding supplies",
-          "unit onboarding"
-        ]
-      },
-      {
-        "code": "US-Keurig",
-        "memo": "Keurig",
-        "keywords": [
-          "keurig coffee maker",
-          "keurig machine"
-        ]
-      },
-      {
-        "code": "US-Point Central Locks/Thermostats",
-        "memo": "PointCentral Equipment",
-        "keywords": [
-          "pointcentral",
-          "smart lock",
-          "door lock",
-          "thermostat"
-        ]
-      },
-      {
-        "code": "US-Exterior/Common Area",
-        "memo": "Exterior/Common Area",
-        "keywords": [
-          "outdoor furniture",
-          "patio",
-          "pool furniture",
-          "common area"
-        ]
-      },
-      {
-        "code": "US-Furniture",
-        "memo": "Furniture",
-        "keywords": [
-          "chair",
-          "sofa",
-          "couch",
-          "table",
-          "dresser",
-          "nightstand",
-          "bed frame",
-          "headboard"
-        ]
-      }
-    ],
-    "fb": [
-      {
-        "code": "F&B-Mixers Purchases",
-        "memo": "Mixers",
-        "keywords": [
-          "mixer",
-          "syrup",
-          "tonic water",
-          "club soda",
-          "grenadine"
-        ]
-      },
-      {
-        "code": "F&B-Miscellaneous Purchases",
-        "memo": "F&B Miscellaneous",
-        "keywords": []
-      },
-      {
-        "code": "F&B-Paper, Plastic & Disposables",
-        "memo": "Paper, Plastic & Disposables",
-        "keywords": [
-          "straw",
-          "napkin",
-          "paper plate",
-          "plastic cup",
-          "to go container",
-          "disposable"
-        ]
-      },
-      {
-        "code": "F&B-Glassware & Utensils",
-        "memo": "Glassware & Utensils",
-        "keywords": [
-          "wine glass",
-          "cocktail glass",
-          "glassware",
-          "bar spoon",
-          "utensil",
-          "silverware"
-        ]
-      }
-    ],
-    "linen": [
-      {
-        "code": "Linen - Sheets",
-        "memo": "Sheets",
-        "keywords": [
-          "sheet set",
-          "flat sheet",
-          "fitted sheet",
-          "bed sheet",
-          "percale"
-        ]
-      },
-      {
-        "code": "Linen - Mattress Pads",
-        "memo": "Mattress Pads",
-        "keywords": [
-          "mattress protector",
-          "mattress pad",
-          "mattress encasement"
-        ]
-      },
-      {
-        "code": "Linen - Pillow Protectors",
-        "memo": "Pillow Protectors",
-        "keywords": [
-          "pillow protector",
-          "pillow encasement"
-        ]
-      },
-      {
-        "code": "Linen - Shower Curtains",
-        "memo": "Shower Curtains",
-        "keywords": [
-          "shower curtain",
-          "shower liner"
-        ]
-      },
-      {
-        "code": "Linen - Bath Towels & Washcloths",
-        "memo": "Bath Towels & Washcloths",
-        "keywords": [
-          "bath towel",
-          "washcloth",
-          "hand towel"
-        ]
-      },
-      {
-        "code": "Linen - Blankets",
-        "memo": "Blankets",
-        "keywords": [
-          "blanket",
-          "throw blanket"
-        ]
-      },
-      {
-        "code": "Linen - Duvets",
-        "memo": "Duvets",
-        "keywords": [
-          "duvet",
-          "duvet insert",
-          "duvet cover"
-        ]
-      },
-      {
-        "code": "Linen - Pool Towels",
-        "memo": "Pool Towels",
-        "keywords": [
-          "pool towel",
-          "beach towel"
-        ]
-      },
-      {
-        "code": "Linen - Pillows",
-        "memo": "Pillows",
-        "keywords": [
-          "bed pillow",
-          "sleeping pillow"
-        ]
-      },
-      {
-        "code": "Linen - 3rd Party Purchased",
-        "memo": "3rd Party Purchased Linen",
-        "keywords": []
-      },
-      {
-        "code": "Linen - Bedskirts",
-        "memo": "Bedskirts",
-        "keywords": [
-          "bed skirt",
-          "bedskirt"
-        ]
-      },
-      {
-        "code": "Linen - Other",
-        "memo": "Other Linen",
-        "keywords": []
-      },
-      {
-        "code": "Linen - Kitchen Towels",
-        "memo": "Kitchen Towels",
-        "keywords": [
-          "kitchen towel",
-          "dish towel",
-          "tea towel"
-        ]
-      }
-    ],
-    "maintenance": [
-      {
-        "code": "7881 - Reactive Supplies",
-        "memo": "Reactive Supplies",
-        "keywords": [
-          "light bulb",
-          "flood light",
-          "bulb",
-          "spray paint",
-          "paint",
-          "shop towel",
-          "fitting",
-          "valve",
-          "pipe",
-          "pvc",
-          "caulk",
-          "sealant",
-          "screw",
-          "bolt",
-          "nut",
-          "washer",
-          "filter",
-          "air filter",
-          "hvac filter",
-          "electrical wire",
-          "wire connector",
-          "outlet",
-          "switch",
-          "breaker",
-          "plumbing repair",
-          "repair part",
-          "hardware",
-          "drain",
-          "supply line",
-          "hose",
-          "connector",
-          "adhesive",
-          "glue",
-          "grout",
-          "mortar",
-          "patch",
-          "spackle",
-          "sandpaper"
-        ]
-      },
-      {
-        "code": "8500 - FF&E Expense",
-        "memo": "FF&E Expense",
-        "keywords": [
-          "motion light",
-          "motion sensor light",
-          "light fixture",
-          "ceiling light",
-          "wall light",
-          "sconce",
-          "ceiling fan",
-          "floor lamp",
-          "table lamp",
-          "television",
-          "smart tv",
-          "refrigerator",
-          "fridge",
-          "microwave",
-          "dishwasher",
-          "washing machine",
-          "clothes dryer",
-          "range",
-          "oven",
-          "stove",
-          "appliance",
-          "mirror",
-          "dresser",
-          "nightstand",
-          "headboard",
-          "bed frame",
-          "sofa",
-          "couch",
-          "accent chair",
-          "dining chair",
-          "dining table",
-          "patio furniture",
-          "outdoor furniture"
-        ]
-      }
-    ],
-    "bartlum": [
-      {
-        "code": "5110",
-        "memo": "Resale",
-        "keywords": [
-          "resale",
-          "for resale"
-        ]
-      },
-      {
-        "code": "7880",
-        "memo": "Boatyard Supplies",
-        "keywords": []
-      }
-    ],
-    "hsk": [
-      {
-        "code": "7700 - 310 - Housekeeping Operations",
-        "memo": "Housekeeping Tool",
-        "keywords": [
-          "tub hose",
-          "faucet sprayer",
-          "rinseroo",
-          "hair remover tool",
-          "drain hair remover",
-          "sink hair remover",
-          "moth trap",
-          "moth traps",
-          "extension cord",
-          "knee pad",
-          "knee pads",
-          "cleaning caddy",
-          "utility bucket",
-          "mop handle",
-          "squeegee",
-          "dustpan",
-          "duster",
-          "scrub brush",
-          "cleaning brush"
-        ]
-      },
-      {
-        "code": "7704 - 310 - Supplies - Cleaning",
-        "memo": "Cleaning Supplies",
-        "keywords": [
-          "cleaner",
-          "disinfectant",
-          "magic eraser",
-          "melamine sponge",
-          "cleaning pad",
-          "clorox clean up",
-          "bleach spray",
-          "glass cleaner",
-          "bathroom cleaner",
-          "all purpose cleaner",
-          "trash bag",
-          "garbage bag",
-          "mop head",
-          "sponge"
-        ]
-      },
-      {
-        "code": "7705 - 311 - Supplies - Laundry",
-        "memo": "Laundry Supplies",
-        "keywords": [
-          "laundry",
-          "stain remover",
-          "whitener",
-          "detergent",
-          "fabric softener",
-          "dryer sheet",
-          "oxiclean"
-        ]
-      }
-    ]
-  }
-}
+	
+version	1
+profiles	
+gsc	
+0	
+code	"GS-Coffee/Coffee Supplies"
+memo	"Coffee Supplies"
+keywords	
+0	"coffee"
+1	"keurig pod"
+2	"k cup"
+3	"creamer"
+4	"sweetener"
+1	
+code	"GS-Paper Towels"
+memo	"Paper Towels"
+keywords	
+0	"paper towel"
+1	"bounty quick size"
+2	"bounty paper towels"
+2	
+code	"GS-Toiletries-Soap/Shampoo/Lotion"
+memo	"Toiletries"
+keywords	
+0	"shampoo"
+1	"conditioner"
+2	"body wash"
+3	"body lotion"
+4	"hand soap"
+5	"bar soap"
+6	"toiletries"
+3	
+code	"GS-Laundry Supplies - Guest Use"
+memo	"Laundry Supplies"
+keywords	
+0	"guest laundry"
+1	"laundry detergent pacs"
+2	"laundry pods"
+3	"dryer sheets"
+4	
+code	"GS-Trash Can Liners"
+memo	"Trash Bags"
+keywords	
+0	"trash bag"
+1	"trash can liner"
+2	"garbage bag"
+5	
+code	"GS-Tissues"
+memo	"Tissues"
+keywords	
+0	"facial tissue"
+1	"kleenex"
+2	"tissues"
+6	
+code	"GS-Kitchen Supplies (dish soap/detergent, sponges)"
+memo	"Kitchen Supplies"
+keywords	
+0	"dish soap"
+1	"dishwasher detergent"
+2	"dishwasher pod"
+3	"sponge"
+4	"scrub sponge"
+7	
+code	"GS-Toilet Paper"
+memo	"Toilet Paper"
+keywords	
+0	"toilet paper"
+1	"charmin"
+8	
+code	"GS-Water bottles"
+memo	"Water Bottles"
+keywords	
+0	"bottled water"
+1	"water bottles"
+9	
+code	"GS-Owner stay Fee"
+memo	"Owner Stay Fee"
+keywords	[]
+10	
+code	"GS-Comp stays"
+memo	"Comp Stays"
+keywords	[]
+11	
+code	"GS-Spices"
+memo	"Spices"
+keywords	
+0	"spice"
+1	"seasoning"
+2	"salt packets"
+3	"pepper packets"
+unit	
+0	
+code	"US-Unit Bedroom Supplies"
+memo	"Bedroom Supplies"
+keywords	
+0	"nightstand"
+1	"bedroom lamp"
+2	"alarm clock"
+3	"hanger"
+4	"luggage rack"
+1	
+code	"US-Unit Bathroom Supplies"
+memo	"Bathroom Supplies"
+keywords	
+0	"bathroom organizer"
+1	"toilet brush"
+2	"shower caddy"
+3	"bath mat"
+2	
+code	"US-Unit Kitchen Supplies"
+memo	"Kitchen Supplies"
+keywords	
+0	"cookware"
+1	"frying pan"
+2	"pot set"
+3	"cutting board"
+4	"kitchen utensil"
+5	"silverware"
+6	"flatware"
+3	
+code	"US-Unit Miscellaneous Supplies"
+memo	"Miscellaneous Unit Supplies"
+keywords	[]
+4	
+code	"US-Unit OnBoarding Supplies"
+memo	"Onboarding Supplies"
+keywords	
+0	"onboarding supplies"
+1	"unit onboarding"
+5	
+code	"US-Keurig"
+memo	"Keurig"
+keywords	
+0	"keurig coffee maker"
+1	"keurig machine"
+6	
+code	"US-Point Central Locks/Thermostats"
+memo	"PointCentral Equipment"
+keywords	
+0	"pointcentral"
+1	"smart lock"
+2	"door lock"
+3	"thermostat"
+7	
+code	"US-Exterior/Common Area"
+memo	"Exterior/Common Area"
+keywords	
+0	"outdoor furniture"
+1	"patio"
+2	"pool furniture"
+3	"common area"
+8	
+code	"US-Furniture"
+memo	"Furniture"
+keywords	
+0	"chair"
+1	"sofa"
+2	"couch"
+3	"table"
+4	"dresser"
+5	"nightstand"
+6	"bed frame"
+7	"headboard"
+fb	
+0	
+code	"F&B-Mixers Purchases"
+memo	"Mixers"
+keywords	
+0	"mixer"
+1	"syrup"
+2	"tonic water"
+3	"club soda"
+4	"grenadine"
+1	
+code	"F&B-Miscellaneous Purchases"
+memo	"F&B Miscellaneous"
+keywords	[]
+2	
+code	"F&B-Paper, Plastic & Disposables"
+memo	"Paper, Plastic & Disposables"
+keywords	
+0	"straw"
+1	"napkin"
+2	"paper plate"
+3	"plastic cup"
+4	"to go container"
+5	"disposable"
+3	
+code	"F&B-Glassware & Utensils"
+memo	"Glassware & Utensils"
+keywords	
+0	"wine glass"
+1	"cocktail glass"
+2	"glassware"
+3	"bar spoon"
+4	"utensil"
+5	"silverware"
+linen	
+0	
+code	"Linen - Sheets"
+memo	"Sheets"
+keywords	
+0	"sheet set"
+1	"flat sheet"
+2	"fitted sheet"
+3	"bed sheet"
+4	"percale"
+1	
+code	"Linen - Mattress Pads"
+memo	"Mattress Pads"
+keywords	
+0	"mattress protector"
+1	"mattress pad"
+2	"mattress encasement"
+2	
+code	"Linen - Pillow Protectors"
+memo	"Pillow Protectors"
+keywords	
+0	"pillow protector"
+1	"pillow encasement"
+3	
+code	"Linen - Shower Curtains"
+memo	"Shower Curtains"
+keywords	
+0	"shower curtain"
+1	"shower liner"
+4	
+code	"Linen - Bath Towels & Washcloths"
+memo	"Bath Towels & Washcloths"
+keywords	
+0	"bath towel"
+1	"washcloth"
+2	"hand towel"
+5	
+code	"Linen - Blankets"
+memo	"Blankets"
+keywords	
+0	"blanket"
+1	"throw blanket"
+6	
+code	"Linen - Duvets"
+memo	"Duvets"
+keywords	
+0	"duvet"
+1	"duvet insert"
+2	"duvet cover"
+7	
+code	"Linen - Pool Towels"
+memo	"Pool Towels"
+keywords	
+0	"pool towel"
+1	"beach towel"
+8	
+code	"Linen - Pillows"
+memo	"Pillows"
+keywords	
+0	"bed pillow"
+1	"sleeping pillow"
+9	
+code	"Linen - 3rd Party Purchased"
+memo	"3rd Party Purchased Linen"
+keywords	[]
+10	
+code	"Linen - Bedskirts"
+memo	"Bedskirts"
+keywords	
+0	"bed skirt"
+1	"bedskirt"
+11	
+code	"Linen - Other"
+memo	"Other Linen"
+keywords	[]
+12	
+code	"Linen - Kitchen Towels"
+memo	"Kitchen Towels"
+keywords	
+0	"kitchen towel"
+1	"dish towel"
+2	"tea towel"
+maintenance	
+0	
+code	"7881 - Reactive Supplies"
+memo	"Reactive Supplies"
+keywords	
+0	"light bulb"
+1	"flood light"
+2	"bulb"
+3	"spray paint"
+4	"paint"
+5	"shop towel"
+6	"fitting"
+7	"valve"
+8	"pipe"
+9	"pvc"
+10	"caulk"
+11	"sealant"
+12	"screw"
+13	"bolt"
+14	"nut"
+15	"washer"
+16	"filter"
+17	"air filter"
+18	"hvac filter"
+19	"electrical wire"
+20	"wire connector"
+21	"outlet"
+22	"switch"
+23	"breaker"
+24	"plumbing repair"
+25	"repair part"
+26	"hardware"
+27	"drain"
+28	"supply line"
+29	"hose"
+30	"connector"
+31	"adhesive"
+32	"glue"
+33	"grout"
+34	"mortar"
+35	"patch"
+36	"spackle"
+37	"sandpaper"
+1	
+code	"8500 - FF&E Expense"
+memo	"FF&E Expense"
+keywords	
+0	"motion light"
+1	"motion sensor light"
+2	"light fixture"
+3	"ceiling light"
+4	"wall light"
+5	"sconce"
+6	"ceiling fan"
+7	"floor lamp"
+8	"table lamp"
+9	"television"
+10	"smart tv"
+11	"refrigerator"
+12	"fridge"
+13	"microwave"
+14	"dishwasher"
+15	"washing machine"
+16	"clothes dryer"
+17	"range"
+18	"oven"
+19	"stove"
+20	"appliance"
+21	"mirror"
+22	"dresser"
+23	"nightstand"
+24	"headboard"
+25	"bed frame"
+26	"sofa"
+27	"couch"
+28	"accent chair"
+29	"dining chair"
+30	"dining table"
+31	"patio furniture"
+32	"outdoor furniture"
+bartlum	
+0	
+code	"5110 - Resale"
+memo	"Resale"
+keywords	
+0	"resale"
+1	"for resale"
+1	
+code	"7880 - Boatyard Supplies"
+memo	"Boatyard Supplies"
+keywords	[]
+hsk	
+0	
+code	"7700 - 310 - Housekeeping Operations"
+memo	"Housekeeping Tool"
+keywords	
+0	"tub hose"
+1	"faucet sprayer"
+2	"rinseroo"
+3	"hair remover tool"
+4	"drain hair remover"
+5	"sink hair remover"
+6	"moth trap"
+7	"moth traps"
+8	"extension cord"
+9	"knee pad"
+10	"knee pads"
+11	"cleaning caddy"
+12	"utility bucket"
+13	"mop handle"
+14	"squeegee"
+15	"dustpan"
+16	"duster"
+17	"scrub brush"
+18	"cleaning brush"
+1	
+code	"7704 - 310 - Supplies - Cleaning"
+memo	"Cleaning Supplies"
+keywords	
+0	"cleaner"
+1	"disinfectant"
+2	"magic eraser"
+3	"melamine sponge"
+4	"cleaning pad"
+5	"clorox clean up"
+6	"bleach spray"
+7	"glass cleaner"
+8	"bathroom cleaner"
+9	"all purpose cleaner"
+10	"trash bag"
+11	"garbage bag"
+12	"mop head"
+13	"sponge"
+2	
+code	"7705 - 311 - Supplies - Laundry"
+memo	"Laundry Supplies"
+keywords	
+0	"laundry"
+1	"stain remover"
+2	"whitener"
+3	"detergent"
+4	"fabric softener"
+5	"dryer sheet"
+6	"oxiclean"
