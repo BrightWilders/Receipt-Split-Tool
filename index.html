@@ -44,7 +44,7 @@
         </div>
       </div>
       <div class="loaded" id="loadedBar"><div><div class="loaded-name" id="loadedName"></div><div class="loaded-meta" id="loadedMeta"></div></div><div class="loaded-actions"><button class="secondary" id="changeBtn">Change PDF</button></div></div>
-      <div class="status" id="status"></div>
+      <div class="status" id="status"></div><div id="keywordDiagnostic" style="margin-top:8px;font-size:12px;color:#12384a">Checking keyword database…</div>
     </section>
 
     <main class="content" id="content">
@@ -139,7 +139,7 @@ const PROFILE_OPTIONS={
   {code:'US-Unit Bedroom Supplies',memo:'Bedroom Supplies',keywords:['nightstand','bedroom lamp','alarm clock','hanger','luggage rack']},
   {code:'US-Unit Bathroom Supplies',memo:'Bathroom Supplies',keywords:['bathroom organizer','toilet brush','shower caddy','bath mat']},
   {code:'US-Unit Kitchen Supplies',memo:'Kitchen Supplies',keywords:['cookware','frying pan','pot set','cutting board','kitchen utensil','silverware','flatware']},
-  {code:'US-Unit Miscellaneous Supplies',memo:'Miscellaneous Unit Supplies',keywords:[]},
+  {code:'US-Unit Miscellaneous Supplies',memo:'Miscellaneous Unit Supplies',keywords:['vacuum','vacuum cleaner','vacuum cleaners']},
   {code:'US-Unit OnBoarding Supplies',memo:'Onboarding Supplies',keywords:['onboarding supplies','unit onboarding']},
   {code:'US-Keurig',memo:'Keurig',keywords:['keurig coffee maker','keurig machine']},
   {code:'US-Point Central Locks/Thermostats',memo:'PointCentral Equipment',keywords:['pointcentral','smart lock','door lock','thermostat']},
@@ -214,6 +214,8 @@ async function loadSharedKeywords(){
   const data=await response.json();
   if(!data||typeof data!=='object'||!data.profiles||!Object.keys(PROFILE_META).some(p=>Array.isArray(data.profiles[p])))throw new Error('Unexpected JSON format');
   publishedRules=mergeKeywordRules(PROFILE_OPTIONS,data);
+  const vacuumRule=publishedRules.unit?.find(x=>x.code==='US-Unit Miscellaneous Supplies');
+  if(vacuumRule){for(const k of ['vacuum','vacuum cleaner','vacuum cleaners'])if(!vacuumRule.keywords.some(x=>normalize(x)===normalize(k)))vacuumRule.keywords.push(k)}
   // Google Sheets -> published JSON is the source of truth. Old browser drafts
   // used to replace entire published categories, hiding newly added keywords.
   // Preserve a backup rather than silently discarding any local work.
@@ -233,6 +235,9 @@ async function loadSharedKeywords(){
   keywordLoadMessage='Could not load data/keywords.json ('+error.message+'). Using built-in keywords. Check that data/keywords.json is valid JSON and published.';
  }
  updateKeywordSourceStatus();
+ const vacuumRule=(rules.unit||[]).find(x=>x.code==='US-Unit Miscellaneous Supplies');
+ const vacuumReady=!!vacuumRule?.keywords?.some(k=>normalize(k)==='vacuum');
+ $('keywordDiagnostic').textContent='Keyword database: '+keywordLoadMessage+' | Vacuum rule: '+(vacuumReady?'READY':'MISSING')+' | Build: 2026-10-27-v3';
  if(allLines.length)applyRouting();
  if($('managerModal').classList.contains('show'))renderManager();
 }
