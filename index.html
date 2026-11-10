@@ -34,7 +34,7 @@
   <div class="shell">
     <section class="setup">
       <div class="upload-card" id="uploadCard">
-        <div class="upload-title">Upload Receipt or Order Details PDF</div>
+        <div class="upload-title">Upload Receipt or Supplier Invoice PDF</div>
         <div class="upload-help">No bucket selection required before upload.</div>
         <label class="choose" id="dropZone"><input id="pdfInput" type="file" accept="application/pdf,.pdf,image/*,.jpg,.jpeg,.png,.webp"><span>Choose PDF</span></label>
         <div class="hint">You can also drag and drop the PDF here.</div>
@@ -62,7 +62,7 @@
           <div class="field"><label>Transaction Date</label><input id="rampDate" type="date"></div>
           <button id="matchBtn">Apply Match</button>
         </div>
-        <div class="match-result" id="matchResult">No Ramp amount entered. The full Amazon order is included.</div>
+        <div class="match-result" id="matchResult">No Ramp amount entered. The full document is included.</div>
       </div>
 
       <div class="routing-card">
@@ -164,7 +164,7 @@ const PROFILE_OPTIONS={
   {code:'Linen - Pillows',memo:'Pillows',keywords:['bed pillow','sleeping pillow']},
   {code:'Linen - 3rd Party Purchased',memo:'3rd Party Purchased Linen',keywords:[]},
   {code:'Linen - Bedskirts',memo:'Bedskirts',keywords:['bed skirt','bedskirt']},
-  {code:'Linen - Other',memo:'Other Linen',keywords:[]},
+  {code:'Linen - Other',memo:'Other Linen',keywords:['pillowcase','pillow case','pillowcases']},
   {code:'Linen - Kitchen Towels',memo:'Kitchen Towels',keywords:['kitchen towel','dish towel','tea towel']}
  ],
  maintenance:[
@@ -285,7 +285,7 @@ const ITEM_MEMO_ALIASES=[
  ['disinfectant','Disinfectant Cleaner'],['all purpose cleaner','All Purpose Cleaner'],['mop head','Mop Supplies'],
  ['sheet set','Sheets'],['flat sheet','Flat Sheets'],['fitted sheet','Fitted Sheets'],['bed sheet','Sheets'],['mattress protector','Mattress Protectors'],['mattress pad','Mattress Pads'],
  ['pillow protector','Pillow Protectors'],['shower curtain','Shower Curtains'],['bath towel','Bath Towels'],['washcloth','Washcloths'],['hand towel','Hand Towels'],
- ['pool towel','Pool Towels'],['beach towel','Pool Towels'],['duvet','Duvets'],['bed pillow','Pillows'],['kitchen towel','Kitchen Towels'],['dish towel','Kitchen Towels'],
+ ['pillowcase','Pillowcases'],['pillow case','Pillowcases'],['pool towel','Pool Towels'],['beach towel','Pool Towels'],['duvet','Duvets'],['bed pillow','Pillows'],['kitchen towel','Kitchen Towels'],['dish towel','Kitchen Towels'],
  ['cutting board','Cutting Boards'],['frying pan','Frying Pans'],['cookware','Cookware'],['silverware','Silverware'],['flatware','Flatware'],['hanger','Hangers'],
  ['wine glass','Wine Glasses'],['cocktail glass','Cocktail Glasses'],['straw','Straws'],['napkin','Napkins'],['paper plate','Paper Plates'],['plastic cup','Plastic Cups'],
  ['woven mini','Woven Mini'],['shieldless knit','Shieldless Knit'],['quick strip','Quick Strip'],['ryobi','Ryobi Battery'],['battery','Battery'],
@@ -547,7 +547,44 @@ function parseGenericReceipt(lines){
  const merchant=(normalized.find(x=>/^[A-Za-z][A-Za-z &.'-]{2,30}$/.test(x)&&!/monday|sunday/i.test(x))||'Receipt').trim();
  return{order:genericReference(normalized),date:genericDate(normalized),orderTotal:orderTotal||items.reduce((s,x)=>s+x.lineTotal,0),transactions:[],shipments:[{dateText:'',date:'',items,tax,discount,total:orderTotal}],items,merchant};
 }
-function parseReceipt(lines){return isAmazonReceipt(lines)?parseAmazon(lines):parseGenericReceipt(lines)}
+// Supplier invoices: only accept rows whose extended amount agrees with quantity × rate.
+// Unlike the generic receipt parser, never silently redistribute invoice differences.
+function isSupplierInvoice(lines){
+ const text=lines.join('\n');
+ return /\bINVOICE\s*(?:#|NO\.?|NUMBER)\s*[A-Z0-9-]+/i.test(text) &&
+        /\b(?:SKU|ITEM\s*CODE)\b/i.test(text) &&
+        /\b(?:QUANTITY|QTY)\b/i.test(text);
+}
+function parseSupplierInvoice(lines){
+ const text=lines.join('\n');
+ const invoice=(text.match(/\bINVOICE\s*(?:#|NO\.?|NUMBER)\s*[:#]?\s*([A-Z0-9-]+)/i)||[])[1]||'—';
+ const date=(text.match(/\bDATE\s+(\d{1,2}\/\d{1,2}\/\d{4})/i)||[])[1]||'—';
+ const items=[];
+ for(const raw of lines){
+  const line=String(raw).replace(/\s+/g,' ').trim();
+  // SKU, optional [SKU] repetition, description, quantity, unit rate, extended amount.
+  const m=line.match(/^([A-Z]{1,8}[-\w]{2,})\s+(?:\[\1\]\s*)?(.+?)\s+(\d{1,5})\s+\$?([\d,]+\.\d{2})\s+\$?([\d,]+\.\d{2})$/i);
+  if(!m)continue;
+  const qty=Number(m[3]),rate=parseMoney(m[4]),amount=parseMoney(m[5]);
+  if(!qty||!rate||Math.abs(Math.round(qty*rate*100)-Math.round(amount*100))>1)continue;
+  items.push({sku:m[1],description:m[2].replace(/^\[[^\]]+\]\s*/,''),qty,unitPrice:rate,amount,receiptAmount:amount,lineTotal:amount,tax:0,discount:0,shipmentDate:'',shipmentDateText:''});
+ }
+ if(!items.length)throw new Error('Supplier invoice detected, but no validated SKU / quantity / rate / amount rows were found. Review the PDF text.');
+ const totals=lines.map(x=>String(x).trim());
+ const totalLine=totals.find(x=>/^TOTAL\s+(?:USD\s*)?\$?[\d,]+\.\d{2}\s*$/i.test(x));
+ const subtotalLine=totals.find(x=>/^SUBTOTAL\s+\$?[\d,]+\.\d{2}\s*$/i.test(x));
+ const taxLine=totals.find(x=>/^TAX\s+\$?[\d,]+\.\d{2}\s*$/i.test(x));
+ const printedTotal=totalLine?lastMoneyInLine(totalLine):null;
+ const printedSubtotal=subtotalLine?lastMoneyInLine(subtotalLine):null;
+ const tax=taxLine?lastMoneyInLine(taxLine):0;
+ const subtotal=items.reduce((sum,item)=>sum+Math.round(item.amount*100),0)/100;
+ const expected=printedTotal??+(subtotal+tax).toFixed(2);
+ const discrepancy=Math.abs(expected-(subtotal+tax))>.011 || (printedSubtotal!=null&&Math.abs(printedSubtotal-subtotal)>.011);
+ allocateTax(items,tax);
+ items.forEach(item=>item.lineTotal=+(item.amount+item.tax).toFixed(2));
+ return {order:invoice,date,orderTotal:expected,transactions:[],shipments:[{dateText:'',date:'',items,tax,discount:0,total:expected}],items,merchant:'Supplier Invoice',supplierInvoice:true,discrepancy};
+}
+function parseReceipt(lines){return isAmazonReceipt(lines)?parseAmazon(lines):isSupplierInvoice(lines)?parseSupplierInvoice(lines):parseGenericReceipt(lines)}
 async function ocrImageSource(source){
  if(!window.Tesseract)throw new Error('Receipt image reader could not load. Please check your internet connection and try again.');
  const result=await window.Tesseract.recognize(source,'eng',{logger:m=>{if(m.status==='recognizing text')setStatus(`Reading receipt image… ${Math.round((m.progress||0)*100)}%`)}});
@@ -568,13 +605,13 @@ async function pdfReceiptLines(file){
 function subsetForAmount(shipments,target){const t=cents(target),valid=shipments.filter(s=>s.items.length&&cents(s.total)>0);let best=null;function walk(i,sum,picked){if(sum===t){best=[...picked];return true}if(i>=valid.length||sum>t)return false;if(walk(i+1,sum+cents(valid[i].total),[...picked,valid[i]]))return true;return walk(i+1,sum,picked)}walk(0,0,[]);return best}
 function matchTransaction(amount,date=''){
  if(!parsedReceipt)return;
- const target=Number(amount||0);let selected=parsedReceipt.items, message='No Ramp amount entered. The full Amazon order is included.',kind='';
- if(target>0){const exactTx=parsedReceipt.transactions.filter(t=>Math.abs(t.amount-target)<.011&&(!date||t.date===date));let tx=exactTx[0];let candidateShipments=[];
+ const target=Number(amount||0);let selected=parsedReceipt.items, message='No Ramp amount entered. The full document is included.',kind='';
+ if(target>0 && parsedReceipt.supplierInvoice){message=Math.abs(parsedReceipt.orderTotal-target)<.011?`Ramp amount matches invoice total: ${money(target)}.`:`Ramp amount ${money(target)} does not match supplier invoice total ${money(parsedReceipt.orderTotal)}. All invoice items remain selected; review before posting.`;kind=Math.abs(parsedReceipt.orderTotal-target)<.011?'good':'warn'}else if(target>0){const exactTx=parsedReceipt.transactions.filter(t=>Math.abs(t.amount-target)<.011&&(!date||t.date===date));let tx=exactTx[0];let candidateShipments=[];
   if(tx)candidateShipments=parsedReceipt.shipments.filter(s=>s.date===tx.date&&s.items.length);
   if(candidateShipments.length&&Math.abs(candidateShipments.reduce((s,x)=>s+x.total,0)-target)<.011){selected=candidateShipments.flatMap(s=>s.items);message=`Exact Amazon card charge found: ${money(target)} on ${tx.dateText}. ${candidateShipments.length} shipment${candidateShipments.length===1?'':'s'} selected automatically.`;kind='good'}
   else {const subset=subsetForAmount(parsedReceipt.shipments,target);if(subset){selected=subset.flatMap(s=>s.items);const dates=[...new Set(subset.map(s=>s.dateText))].join(', ');message=`Shipment total matched exactly to ${money(target)}${dates?` (${dates})`:''}. ${subset.length} shipment${subset.length===1?'':'s'} selected.`;kind='good'}else if(Math.abs(parsedReceipt.orderTotal-target)<.011){selected=parsedReceipt.items;message=`Ramp amount matches the full Amazon order total: ${money(target)}.`;kind='good'}else{selected=parsedReceipt.items;message=`I could not isolate an exact ${money(target)} shipment match. The full order remains selected for review.`;kind='warn'}}
  }
- allLines=selected.map(x=>({...x}));applyRouting();$('matchResult').innerHTML=`<strong>${esc(message)}</strong><br>${allLines.length} item line${allLines.length===1?'':'s'} included • ${money(allLines.reduce((s,x)=>s+x.lineTotal,0))}`;$('matchCard').className=`match-card${kind?' '+kind:''}`;$('transactionTotal').textContent=money(allLines.reduce((s,x)=>s+x.lineTotal,0));updateLoadedMeta();
+ allLines=selected.map(x=>({...x}));applyRouting();if(parsedReceipt.supplierInvoice&&parsedReceipt.discrepancy){kind='warn';setTimeout(()=>setStatus('Supplier invoice line amounts do not match the printed subtotal/total. No automatic adjustment was made.',true),0)}$('matchResult').innerHTML=`<strong>${esc(message)}</strong><br>${allLines.length} item line${allLines.length===1?'':'s'} included • ${money(allLines.reduce((s,x)=>s+x.lineTotal,0))}`;$('matchCard').className=`match-card${kind?' '+kind:''}`;$('transactionTotal').textContent=money(allLines.reduce((s,x)=>s+x.lineTotal,0));updateLoadedMeta();
 }
 
 
@@ -844,9 +881,9 @@ function printRampSplit(){
  document.body.appendChild(frame);
  const doc=frame.contentDocument||frame.contentWindow.document;
  doc.open();
- doc.write(`<!doctype html><html><head><meta charset="utf-8"><title>Amazon Ramp Split</title><style>
+ doc.write(`<!doctype html><html><head><meta charset="utf-8"><title>Ramp Split</title><style>
  @page{size:auto;margin:.45in}*{box-sizing:border-box}body{font-family:Arial,sans-serif;color:#17242b;margin:0;font-size:12px}h1{margin:0 0 4px;color:#12384a;font-size:20px}.subhead{color:#657780;margin-bottom:14px}.meta-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}.meta{border:1px solid #d7e1e6;border-radius:6px;padding:8px}.label{text-transform:uppercase;font-size:9px;color:#657780;letter-spacing:.3px}.value{font-weight:700;margin-top:3px}.summary-wrap{border:1px solid #d7e1e6;border-radius:6px;overflow:hidden}.split-table{width:100%;border-collapse:collapse}.split-table th{padding:7px 8px;background:#edf3f5;color:#12384a;text-align:left;font-size:9px;text-transform:uppercase;border-bottom:1px solid #d7e1e6}.split-table td{padding:8px;border-bottom:1px solid #d7e1e6;vertical-align:top}.split-table .coding{font-weight:700;color:#12384a}.split-table .dept{text-align:center;width:65px}.split-table .amount{text-align:right;width:90px;white-space:nowrap;font-weight:700}.split-table tfoot td{background:#12384a;color:#fff;font-weight:700;border:0}.split-table tfoot .total-label{text-align:right}.review-row{background:#fff8ea}@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
- </style></head><body><h1>Amazon Ramp Split</h1><div class="subhead">Prepared from Amazon receipt/order details</div><div class="meta-grid"><div class="meta"><div class="label">Order Number</div><div class="value">${esc(order)}</div></div><div class="meta"><div class="label">Order Date</div><div class="value">${esc(date)}</div></div><div class="meta"><div class="label">Receipt / Order Total</div><div class="value">${esc(orderTotal)}</div></div><div class="meta"><div class="label">Ramp Split Total</div><div class="value">${esc(splitTotal)}</div></div></div><div class="summary-wrap">${summary}</div></body></html>`);
+ </style></head><body><h1>Ramp Split</h1><div class="subhead">Prepared from receipt or supplier invoice</div><div class="meta-grid"><div class="meta"><div class="label">Order Number</div><div class="value">${esc(order)}</div></div><div class="meta"><div class="label">Order Date</div><div class="value">${esc(date)}</div></div><div class="meta"><div class="label">Receipt / Order Total</div><div class="value">${esc(orderTotal)}</div></div><div class="meta"><div class="label">Ramp Split Total</div><div class="value">${esc(splitTotal)}</div></div></div><div class="summary-wrap">${summary}</div></body></html>`);
  doc.close();
  const doPrint=()=>{try{frame.contentWindow.focus();frame.contentWindow.print()}finally{setTimeout(()=>frame.remove(),1500)}};
  if(doc.readyState==='complete')setTimeout(doPrint,150);else frame.onload=()=>setTimeout(doPrint,150);
